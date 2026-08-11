@@ -7,6 +7,11 @@
       "matchPackageNames": ["caddy"],
       "minimumReleaseAge": "3 days",
       "automerge": true
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "minimumReleaseAge": "3 days",
+      "automerge": true
     }
   ]
 }
