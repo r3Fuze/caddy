@@ -1,10 +1,25 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
+  "customManagers": [
+    {
+      "description": "Track the caddy plugin versions pinned in the xcaddy build",
+      "customType": "regex",
+      "managerFilePatterns": ["/^Dockerfile$/"],
+      "matchStrings": ["--with (?<depName>[^@\\s]+)@(?<currentValue>v[^\\s\\\\]+)"],
+      "datasourceTemplate": "go"
+    }
+  ],
   "packageRules": [
     {
       "matchDatasources": ["docker"],
       "matchPackageNames": ["caddy"],
+      "minimumReleaseAge": "3 days",
+      "automerge": true
+    },
+    {
+      "description": "Caddy plugins, validated by the pull request build before merge",
+      "matchDatasources": ["go"],
       "minimumReleaseAge": "3 days",
       "automerge": true
     },
