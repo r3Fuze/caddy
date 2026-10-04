@@ -1,7 +1,10 @@
 # caddy
 
-Caddy with [`caddy-docker-proxy`](https://github.com/lucaslorentz/caddy-docker-proxy) and
-[`caddy-dns/cloudflare`](https://github.com/caddy-dns/cloudflare), rebuilt on every Caddy release.
+Caddy with these plugins, rebuilt on every Caddy release:
+
+- [`caddy-docker-proxy`](https://github.com/lucaslorentz/caddy-docker-proxy)
+- [`caddy-dns/cloudflare`](https://github.com/caddy-dns/cloudflare)
+- [`sablier-caddy-plugin`](https://github.com/sablierapp/sablier-caddy-plugin)
 
 ```sh
 docker pull ghcr.io/r3fuze/caddy:latest
