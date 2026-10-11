@@ -1,4 +1,4 @@
-FROM caddy:2.11.6-builder-alpine AS builder
+FROM caddy:2.11.7-builder-alpine AS builder
 RUN xcaddy build \
     --with github.com/lucaslorentz/caddy-docker-proxy/v2@v2.13.1 \
     --with github.com/caddy-dns/cloudflare@v0.2.4 \
