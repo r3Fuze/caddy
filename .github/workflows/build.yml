@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 jobs:
@@ -30,7 +30,8 @@ jobs:
           echo "image=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
           echo "sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
-      - uses: docker/build-push-action@v7
+      - id: push
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
@@ -39,3 +40,42 @@ jobs:
             ${{ steps.meta.outputs.image }}:latest
             ${{ steps.meta.outputs.image }}:sha-${{ steps.meta.outputs.sha }}
           labels: org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+
+      - name: Create release
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IMAGE: ${{ steps.meta.outputs.image }}
+          CADDY: ${{ steps.meta.outputs.caddy }}
+          SHA: ${{ steps.meta.outputs.sha }}
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: |
+          tag="v${CADDY}-sha-${SHA}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists, skipping"
+            exit 0
+          fi
+
+          plugins=$(grep -oP -- '--with \K\S+' Dockerfile | sed 's/^/- `/; s/$/`/')
+
+          cat > notes.md <<EOF
+          ## Image
+
+          \`\`\`sh
+          docker pull ${IMAGE}:${CADDY}
+          docker pull ${IMAGE}:sha-${SHA}
+          docker pull ${IMAGE}@${DIGEST}
+          \`\`\`
+
+          ## Contents
+
+          - Caddy \`${CADDY}\`
+          ${plugins}
+
+          EOF
+
+          gh release create "$tag" \
+            --target "$GITHUB_SHA" \
+            --title "Caddy ${CADDY} (${SHA})" \
+            --notes-file notes.md \
+            --generate-notes
